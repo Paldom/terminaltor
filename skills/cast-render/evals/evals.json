@@ -1,0 +1,57 @@
+{
+  "skill": "cast-render",
+  "cases": [
+    { "type": "should_trigger", "prompt": "convert demo.cast to a gif" },
+    { "type": "should_trigger", "prompt": "turn this asciinema recording into an mp4" },
+    { "type": "should_trigger", "prompt": "render the cast with the dracula theme" },
+    { "type": "should_trigger", "prompt": "the recording gif is 20MB, make it smaller" },
+    { "type": "should_trigger", "prompt": "cut the first 10 seconds off the cast when rendering" },
+    { "type": "should_trigger", "prompt": "render demo.cast for the readme using our project colors" },
+    { "type": "should_trigger", "prompt": "gif from cast file pls" },
+    { "type": "should_trigger", "prompt": "speed up the cast 2x and cap the idle time in the output" },
+    { "type": "should_trigger", "prompt": "how should I embed this terminal recording in the readme, gif or video?" },
+    { "type": "should_not_trigger", "prompt": "write a vhs tape for the readme demo" },
+    { "type": "should_not_trigger", "prompt": "make a demo gif from scratch for my CLI" },
+    { "type": "should_not_trigger", "prompt": "record my terminal to a cast file" },
+    { "type": "should_not_trigger", "prompt": "remove the password that shows up in the cast" },
+    { "type": "should_not_trigger", "prompt": "compress this screen-recording .mov" },
+    { "type": "should_not_trigger", "prompt": "convert this png to webp" },
+    { "type": "should_not_trigger", "prompt": "host the recording on asciinema.org" },
+    { "type": "should_not_trigger", "prompt": "add a hero video to our website" },
+    {
+      "type": "quality",
+      "prompt": "Render demo.cast as a README-ready gif",
+      "expected_behavior": [
+        "renders with agg using an explicit theme and sensible defaults (font size, fps cap, idle limit)",
+        "optimizes with gifsicle (-O3, --lossy and/or --colors) and reports final size against the 10 MB GitHub image budget",
+        "reminds that the cast should be secret-scanned (cast-redact) before the artifact is published if that hasn't happened"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "I need an mp4 of the recording for the release notes",
+      "expected_behavior": [
+        "renders cast to gif with agg, then converts with ffmpeg using yuv420p pixel format, even-dimension scale filter, and +faststart",
+        "verifies the mp4 was produced (e.g. ffprobe/file) and notes it is silent video",
+        "explains GitHub renders uploaded mp4 attachments click-to-play (10 MB free / 100 MB paid), while gifs autoplay inline"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Only the part between the build and the test run matters - render just that, a bit faster",
+      "expected_behavior": [
+        "uses agg --select with a time range (or markers) to trim, plus --speed and --idle-time-limit for pacing",
+        "does not modify the source .cast - trimming happens at render time"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Match the rendered gif to our brand palette instead of a stock theme",
+      "expected_behavior": [
+        "passes a custom agg theme as comma-separated hex values (background, foreground, then 8 or 16 palette colors)",
+        "falls back to a neutral built-in theme (e.g. github-dark) when no palette is provided",
+        "optionally pairs dark/light renders via the <picture> prefers-color-scheme pattern for README theme-awareness"
+      ]
+    }
+  ]
+}

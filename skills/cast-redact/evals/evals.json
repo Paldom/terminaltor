@@ -1,0 +1,58 @@
+{
+  "skill": "cast-redact",
+  "cases": [
+    { "type": "should_trigger", "prompt": "remove the api key from demo.cast" },
+    { "type": "should_trigger", "prompt": "sanitize this terminal recording before I publish it" },
+    { "type": "should_trigger", "prompt": "there's a secret visible in my asciinema recording, scrub it" },
+    { "type": "should_trigger", "prompt": "redact my username and home dir from the cast" },
+    { "type": "should_trigger", "prompt": "check this cast file for leaked tokens" },
+    { "type": "should_trigger", "prompt": "clean sensitive output from the recording pls" },
+    { "type": "should_trigger", "prompt": "scan demo.cast for secrets before we commit it" },
+    { "type": "should_trigger", "prompt": "mask the AWS creds that got printed during the recording" },
+    { "type": "should_trigger", "prompt": "our internal hostnames show up in the terminal capture, strip them out" },
+    { "type": "should_not_trigger", "prompt": "remove the api key from my .env file" },
+    { "type": "should_not_trigger", "prompt": "trim the boring middle part out of the cast" },
+    { "type": "should_not_trigger", "prompt": "speed the recording up 2x" },
+    { "type": "should_not_trigger", "prompt": "rotate my leaked github token" },
+    { "type": "should_not_trigger", "prompt": "redact PII from this pdf before sharing" },
+    { "type": "should_not_trigger", "prompt": "make the demo gif smaller" },
+    { "type": "should_not_trigger", "prompt": "record the session in a clean env so no secrets get captured" },
+    { "type": "should_not_trigger", "prompt": "add a gitleaks pre-commit hook to the repo" },
+    {
+      "type": "quality",
+      "prompt": "demo.cast printed an sk_live Stripe key during recording - get it out before we publish",
+      "expected_behavior": [
+        "runs the bundled redact script in --scan mode first and reports pattern names/locations WITHOUT printing the secret value",
+        "applies redaction to a NEW file (never overwrites the source), then re-scans the output to confirm it is clean",
+        "never loads the raw cast contents into the model context (works through the script, not by reading the file)",
+        "states that the key must be rotated regardless - it was recorded, so it is compromised"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "I typed the token by hand during the recording, so it echoes one character at a time - can you still scrub it?",
+      "expected_behavior": [
+        "explains that per-event regex misses split secrets and that the bundled script matches on the joined output stream across event boundaries",
+        "runs the script (scan then apply) rather than hand-editing the NDJSON",
+        "re-scans the redacted file to verify zero remaining matches"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "The command I recorded with had the token in its arguments, is that a problem?",
+      "expected_behavior": [
+        "identifies that asciicast headers store the command string (and env/title) and scrubs header fields, not just events",
+        "recommends re-recording with the secret passed via a file or clean env if the redacted artifact still feels risky"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Scrub the recording of anything identifying my machine",
+      "expected_behavior": [
+        "enables the path rules (home directories) and adds custom patterns for hostname/username via the pattern flags or a gitignored replace-file",
+        "does not pass literal secret values on the command line (uses a replace-file or built-in patterns)",
+        "verifies with a final --scan that reports clean"
+      ]
+    }
+  ]
+}

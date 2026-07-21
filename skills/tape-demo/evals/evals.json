@@ -1,0 +1,59 @@
+{
+  "skill": "tape-demo",
+  "cases": [
+    { "type": "should_trigger", "prompt": "create a demo gif for my CLI's README" },
+    { "type": "should_trigger", "prompt": "write a vhs tape that shows off the install flow" },
+    { "type": "should_trigger", "prompt": "make an animated terminal demo of `mytool init` for the docs" },
+    { "type": "should_trigger", "prompt": "can u script a terminal recording so it renders the same every time" },
+    { "type": "should_trigger", "prompt": "generate a README demo showing how to use this library from the terminal" },
+    { "type": "should_trigger", "prompt": "I need a polished terminal gif demoing these three commands" },
+    { "type": "should_trigger", "prompt": "turn this list of commands into a demo mp4 for the landing page" },
+    { "type": "should_trigger", "prompt": "add a terminal demo to the readme that regenerates in CI" },
+    { "type": "should_trigger", "prompt": "vhs demo.tape produces a broken gif, fix the tape" },
+    { "type": "should_trigger", "prompt": "showcase mylib's quickstart commands as an animated terminal clip" },
+    { "type": "should_not_trigger", "prompt": "record what I'm doing in my terminal right now" },
+    { "type": "should_not_trigger", "prompt": "record this session with asciinema" },
+    { "type": "should_not_trigger", "prompt": "remove the api key that shows up in demo.cast" },
+    { "type": "should_not_trigger", "prompt": "convert demo.cast to a gif" },
+    { "type": "should_not_trigger", "prompt": "screen-record my browser walkthrough for the readme" },
+    { "type": "should_not_trigger", "prompt": "why is my ffmpeg command failing on this mov file" },
+    { "type": "should_not_trigger", "prompt": "write a README for this project" },
+    { "type": "should_not_trigger", "prompt": "make an animated architecture diagram for the docs" },
+    {
+      "type": "quality",
+      "prompt": "Create a README demo gif for my CLI: it should show `mytool init` and then `mytool status`",
+      "expected_behavior": [
+        "writes a .tape file with Output <name>.gif, Set directives (size, font size, theme, typing speed) at the top, and Type/Enter/Sleep steps for both commands",
+        "runs `vhs validate` on the tape before rendering, then renders with `vhs <file>.tape`",
+        "confirms the output gif exists and reports its file size against the ~10 MB README budget",
+        "commits nothing; leaves the tape next to the artifact so the demo can be regenerated"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Make the terminal demo match our project's brand colors instead of a stock theme",
+      "expected_behavior": [
+        "uses the inline `Set Theme { ... }` JSON form with the project's hex colors (background, foreground, palette) rather than a named theme",
+        "falls back to a neutral named theme (e.g. \"GitHub Dark\") only if no brand palette is available",
+        "keeps all Set directives before the first action command"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "The demo runs `npm install` which takes a variable amount of time - make the recording not cut it off",
+      "expected_behavior": [
+        "uses `Wait /pattern/` (or Wait+Screen) on expected output instead of guessing a long Sleep",
+        "mentions or sets the wait timeout if the step can exceed the 15s default"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "The demo needs an API token exported before the tool runs, but the token must not appear in the gif",
+      "expected_behavior": [
+        "performs setup inside a Hide/Show block and/or injects the value with Env",
+        "uses an obviously fake value (never a real credential) even in hidden setup, and says why: Hide only stops frame capture, the value still exists in the session",
+        "treats the tape as executable code: reviews commands before running vhs"
+      ]
+    }
+  ]
+}

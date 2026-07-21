@@ -1,0 +1,59 @@
+{
+  "skill": "cast-record",
+  "cases": [
+    { "type": "should_trigger", "prompt": "record my terminal session" },
+    { "type": "should_trigger", "prompt": "capture this command run as an asciicast" },
+    { "type": "should_trigger", "prompt": "asciinema record the test suite run" },
+    { "type": "should_trigger", "prompt": "record a real terminal session of the deploy script so we can replay it" },
+    { "type": "should_trigger", "prompt": "can you record ./install.sh running and save a .cast file" },
+    { "type": "should_trigger", "prompt": "make a cast recording of me using the repl" },
+    { "type": "should_trigger", "prompt": "record terminal output to a cast file headlessly in CI" },
+    { "type": "should_trigger", "prompt": "capture a terminal session showing the actual error happening" },
+    { "type": "should_trigger", "prompt": "rec my shell to demo.cast pls" },
+    { "type": "should_not_trigger", "prompt": "make a demo gif for the readme" },
+    { "type": "should_not_trigger", "prompt": "script a terminal demo with simulated typing" },
+    { "type": "should_not_trigger", "prompt": "turn demo.cast into a gif" },
+    { "type": "should_not_trigger", "prompt": "scrub my home directory path from the recording" },
+    { "type": "should_not_trigger", "prompt": "record my screen with the browser walkthrough" },
+    { "type": "should_not_trigger", "prompt": "set up an asciinema server so the team can host casts" },
+    { "type": "should_not_trigger", "prompt": "embed the asciinema player on our docs site" },
+    { "type": "should_not_trigger", "prompt": "why is my zsh prompt rendering weird glyphs" },
+    {
+      "type": "quality",
+      "prompt": "Record ./demo.sh running so we can render it for the docs later",
+      "expected_behavior": [
+        "records headlessly with an explicit window size and idle cap, e.g. `asciinema rec --headless --window-size 100x30 -i 2 -c ./demo.sh --overwrite demo.cast`",
+        "verifies the .cast was written and its header line is valid JSON with the expected cols/rows",
+        "warns that the -c command string is stored in the cast header, so it must not contain secrets",
+        "does not upload anywhere - recording stays a local file"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Record the onboarding flow but make sure nothing from my machine leaks into it",
+      "expected_behavior": [
+        "runs the session with a clean environment: temp HOME or working dir, generic prompt, fake credential values",
+        "leaves --capture-input off (default) and explains it would record every keystroke including passwords",
+        "recommends a secrets scan (cast-redact) before the cast is shared or committed",
+        "keeps the raw cast out of git until it has been reviewed/redacted"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "I want to record an interactive session where I type the commands myself",
+      "expected_behavior": [
+        "starts `asciinema rec <file>.cast` attached to the terminal and explains ctrl+d/exit ends it and ctrl+\\ pauses/resumes",
+        "suggests --window-size for consistent playback dimensions and -i to cap idle gaps",
+        "mentions the recording can be replayed with `asciinema play` before any rendering"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "The downstream tool only understands asciicast v2, record accordingly",
+      "expected_behavior": [
+        "records with `-f asciicast-v2` or converts an existing cast via `asciinema convert -f asciicast-v2`",
+        "notes that 3.x records asciicast v3 by default"
+      ]
+    }
+  ]
+}
