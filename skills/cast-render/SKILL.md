@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: cast-render
 description: Renders asciicast .cast recordings into themed GIFs and MP4s with agg, gifsicle, and ffmpeg - trimming, speed and idle control, brand or neutral themes, size budgets, README embedding. Use when the user asks to convert, render, trim, speed up, optimize, or embed an existing terminal recording. Not for creating demos from scratch, capturing sessions, or general video files like screen recordings.
 ---

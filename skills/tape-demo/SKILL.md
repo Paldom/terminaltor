@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: tape-demo
 description: Creates polished terminal demo GIFs/MP4s as code with VHS .tape scripts - simulated typing, themed terminal, hidden setup, reproducible re-renders for READMEs and docs. Use when the user wants to make, script, or fix a terminal demo, demo gif, or CLI showcase from scratch. Not for recording live sessions or converting existing .cast files.
 ---

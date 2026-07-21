@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: cast-record
 description: Records real terminal sessions to asciicast .cast files with asciinema 3.x - interactive or headless/scripted capture with clean-environment hygiene so machine details and secrets stay out. Use when the user asks to record, capture, or rec a terminal session, command run, or shell activity. Not for authoring scripted demo tapes/gifs, redacting, or rendering casts.
 ---
