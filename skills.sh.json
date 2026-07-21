@@ -1,16 +1,22 @@
 {
   "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
   "notGrouped": "bottom",
-  "groups": [
+  "groupings": [
     {
-      "name": "Demo as code",
+      "title": "Demo as code",
       "description": "Script a terminal demo once and re-render it forever - no typos, no leaked machine state, pixel-identical on every run.",
-      "skills": ["tape-demo"]
+      "skills": [
+        "tape-demo"
+      ]
     },
     {
-      "name": "Capture, scrub, ship",
+      "title": "Capture, scrub, ship",
       "description": "Record the real thing, strip every secret it caught, and render a README-ready GIF or MP4 from the sanitized cast.",
-      "skills": ["cast-record", "cast-redact", "cast-render"]
+      "skills": [
+        "cast-record",
+        "cast-redact",
+        "cast-render"
+      ]
     }
   ]
 }
