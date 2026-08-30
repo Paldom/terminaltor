@@ -1,7 +1,7 @@
 ---
 license: MIT
 name: cast-redact
-description: Scrubs secrets, tokens, usernames, and machine paths from asciicast .cast recordings before publishing - scan and rewrite via a bundled script that catches secrets split across events and in headers. Use when the user wants to redact, sanitize, scrub, mask, or scan a terminal recording for leaked credentials. Not for editing .env files, trimming casts, or rendering.
+description: Removes leaked secrets, API keys, tokens, usernames and machine paths from an asciicast .cast recording before publishing - scans and rewrites via a bundled script that catches values split across events and in headers. Use when the user wants to redact, sanitize, scrub, mask or remove a credential from a terminal recording. Not for editing .env files, trimming casts, or rendering.
 ---
 
 # cast-redact

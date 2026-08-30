@@ -7,6 +7,26 @@ versioning: [SemVer](https://semver.org) on the plugin manifest
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-31
+
+### Added
+- Adopted the current skillskit gate: executed trigger evals (`make evals`),
+  a security scan over skill content and bundled scripts, ruff lint/format,
+  README-shape validation, pre-commit hooks and a write-time lint hook.
+
+### Changed
+- `cast-render` and `cast-redact` descriptions rewritten after the new eval
+  gate showed `cast-render` ranking last on three of its own trigger prompts,
+  beaten by `tape-demo`: converting an existing recording is now stated up
+  front and distinguished from scripting a demo from scratch. Rank-1 routing
+  accuracy 80.0% -> 86.7%.
+
+### Fixed
+- `cast-redact`: the asciicast writer chose JSON separators with a conditional
+  whose branches were identical, plus an unused loop variable and an unused
+  unpacked value. Found by the new lint gate.
+
+
 ### Added
 - `tape-demo`: scripted VHS `.tape` terminal demos rendered to GIF/MP4 —
   reproducible demo-as-code with theming (named or brand JSON), `Hide`/`Env`

@@ -13,6 +13,7 @@ Modes:
 
 Exit codes: 0 = success/clean, 1 = scan found matches, 2 = error.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -33,11 +34,15 @@ BUILTIN_PATTERNS = [
     ("slack-token", r"xox[abprs]-[A-Za-z0-9-]{10,}"),
     ("google-api-key", r"AIza[0-9A-Za-z_-]{35}"),
     ("jwt", r"eyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}"),
-    ("private-key-block",
-     r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----"),
+    (
+        "private-key-block",
+        r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----",
+    ),
     ("bearer-token", r"(?i)\bbearer\s+[A-Za-z0-9._~+/=-]{16,}"),
-    ("env-assignment",
-     r"\b(?:API|SECRET|TOKEN|PASSWORD|PASSWD|ACCESS|PRIVATE)[A-Z_]*=\s?['\"]?[^\s'\"\[\]]{8,}"),
+    (
+        "env-assignment",
+        r"\b(?:API|SECRET|TOKEN|PASSWORD|PASSWD|ACCESS|PRIVATE)[A-Z_]*=\s?['\"]?[^\s'\"\[\]]{8,}",
+    ),
 ]
 
 # (?!demo\b) keeps the rules idempotent: the replacement never re-matches.
@@ -141,11 +146,11 @@ def rebuild_event(ev_text, a, b, spans):
         if e <= a or s >= b:
             continue
         lo, hi = max(s, a), min(e, b)
-        out.append(ev_text[cursor - a:lo - a])
+        out.append(ev_text[cursor - a : lo - a])
         if s >= a:  # this event contains the span start -> emit replacement here
             out.append(repl)
         cursor = hi
-    out.append(ev_text[cursor - a:b - a])
+    out.append(ev_text[cursor - a : b - a])
     return "".join(out)
 
 
@@ -207,7 +212,7 @@ def process(path, rules, drop_input=False):
         if not joined:
             continue
         spans = find_spans(joined, rules)
-        for s, e, _repl, name in spans:
+        for s, _e, _repl, name in spans:
             first_line = next(lines[i][2] for i, a, b in index if a <= s < b)
             findings.append((name, f'events "{code}"', first_line))
         replaced += len(spans)
@@ -229,8 +234,7 @@ def write_cast(lines, out_path):
                 if kind == "raw":
                     f.write(val + "\n")
                 else:
-                    f.write(json.dumps(val, ensure_ascii=False,
-                                       separators=(",", ":") if kind == "event" else (",", ":")) + "\n")
+                    f.write(json.dumps(val, ensure_ascii=False, separators=(",", ":")) + "\n")
         os.replace(tmp, out_path)
     except BaseException:
         if os.path.exists(tmp):
@@ -250,12 +254,14 @@ def report(findings):
 def self_test():
     secret = "sk_live_" + "ABCDEF1234567890"
     token = "ghp_" + "x" * 36
-    header = {"version": 3,
-              "term": {"cols": 80, "rows": 24},
-              "command": f"deploy --token {token}",
-              "env": {"SHELL": "/bin/bash", "API_KEY": secret}}
+    header = {
+        "version": 3,
+        "term": {"cols": 80, "rows": 24},
+        "command": f"deploy --token {token}",
+        "env": {"SHELL": "/bin/bash", "API_KEY": secret},
+    }
     events = [[0.1, "o", "starting up\r\n"]]
-    events += [[0.05, "o", ch] for ch in secret]          # split across events
+    events += [[0.05, "o", ch] for ch in secret]  # split across events
     events.append([0.2, "o", "\r\nls /Users/alice/proj\r\n"])
     events.append([0.1, "i", "hunter2-password-x"])
     events.append([0.1, "r", "100x30"])
@@ -281,8 +287,10 @@ def self_test():
         n_in = sum(1 for _ in events)
         n_out = sum(1 for k, _, _ in out_lines if k == "event")
         assert n_in == n_out, "event count changed"
-        assert [v[0] for k, v, _ in out_lines if k == "event"] == [e[0] for e in events], "timing changed"
-        rescan_lines, rescan_findings, _ = process(dst, rules)
+        assert [v[0] for k, v, _ in out_lines if k == "event"] == [e[0] for e in events], (
+            "timing changed"
+        )
+        _rescan_lines, rescan_findings, _ = process(dst, rules)
         assert not rescan_findings, f"re-scan of sanitized file not clean: {rescan_findings}"
         assert replaced >= 3 and findings, "expected findings on first pass"
 
@@ -292,8 +300,9 @@ def self_test():
         assert not any(e[1] == "i" for e in d_events), "input events survived --drop-input"
         total_before = sum(e[0] for e in events)
         total_after = sum(e[0] for e in d_events)
-        assert abs(total_before - total_after) < 1e-6, \
+        assert abs(total_before - total_after) < 1e-6, (
             f"v3 cumulative timing changed: {total_before} -> {total_after}"
+        )
     print("self-test OK")
 
 
@@ -301,17 +310,28 @@ def main():
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("input", nargs="?", help="source .cast (never modified)")
     p.add_argument("output", nargs="?", help="destination for the sanitized .cast")
-    p.add_argument("--scan", action="store_true",
-                   help="report findings only; exit 1 if any (no payloads printed)")
-    p.add_argument("--paths", action="store_true",
-                   help="also rewrite /Users/<x> and /home/<x> to a demo user")
-    p.add_argument("--pattern", action="append", metavar="REGEX[=>REPL]",
-                   help="extra regex rule (repeatable); do NOT put literal secrets here")
-    p.add_argument("--replace-file", metavar="FILE",
-                   help="file of 'literal=>replacement' lines for known secret values "
-                        "(keep it gitignored)")
-    p.add_argument("--drop-input", action="store_true",
-                   help="remove all input ('i') events from the output")
+    p.add_argument(
+        "--scan",
+        action="store_true",
+        help="report findings only; exit 1 if any (no payloads printed)",
+    )
+    p.add_argument(
+        "--paths", action="store_true", help="also rewrite /Users/<x> and /home/<x> to a demo user"
+    )
+    p.add_argument(
+        "--pattern",
+        action="append",
+        metavar="REGEX[=>REPL]",
+        help="extra regex rule (repeatable); do NOT put literal secrets here",
+    )
+    p.add_argument(
+        "--replace-file",
+        metavar="FILE",
+        help="file of 'literal=>replacement' lines for known secret values (keep it gitignored)",
+    )
+    p.add_argument(
+        "--drop-input", action="store_true", help="remove all input ('i') events from the output"
+    )
     p.add_argument("--force", action="store_true", help="allow overwriting an existing output file")
     p.add_argument("--self-test", action="store_true", help="run the built-in verification suite")
     args = p.parse_args()
@@ -327,7 +347,10 @@ def main():
         _lines, findings, _n = process(args.input, rules, drop_input=False)
         if findings:
             report(findings)
-            print(f"RESULT: {len(findings)} finding group(s) - redact before publishing", file=sys.stderr)
+            print(
+                f"RESULT: {len(findings)} finding group(s) - redact before publishing",
+                file=sys.stderr,
+            )
             return 1
         print("RESULT: clean (no rule matched)")
         return 0
