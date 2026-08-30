@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/icon.svg" alt="terminaltor icon" width="128"/>
+</p>
+
 # Terminaltor
 
 [![CI](https://github.com/Paldom/terminaltor/actions/workflows/ci.yml/badge.svg)](https://github.com/Paldom/terminaltor/actions/workflows/ci.yml)
